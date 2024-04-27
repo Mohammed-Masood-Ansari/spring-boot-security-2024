@@ -101,7 +101,10 @@ public class ApplicationSecurityConfig {
 		 */
 		httpSecurity.authorizeHttpRequests(security->{
 			security.requestMatchers(antMatcher("/employeeData")).authenticated();
-			security.requestMatchers(antMatcher("/studentData")).permitAll();
+			security.requestMatchers(antMatcher("/studentData"),antMatcher("/WEB-INF/view/**"),antMatcher("/register"))
+			.permitAll()
+			.anyRequest()
+			.authenticated();
 		});
 		
 		/**
