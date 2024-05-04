@@ -8,6 +8,6 @@ public class StudentController {
 
 	@GetMapping("/studentData")
 	public String getStudentData() {
-		return "My Name is ANSARI";
+		return "I am student.........";
 	}
 }

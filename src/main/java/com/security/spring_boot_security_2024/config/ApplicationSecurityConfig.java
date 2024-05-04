@@ -3,13 +3,20 @@ package com.security.spring_boot_security_2024.config;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
+import org.springframework.security.provisioning.JdbcUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import static org.springframework.security.web.util.matcher.AntPathRequestMatcher.*;
+
+import java.sql.DriverManager;
+
+import javax.sql.DataSource;
+
 import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
 
 @Configuration
@@ -27,43 +34,67 @@ public class ApplicationSecurityConfig {
 	@Autowired
 	private HttpSecurity httpSecurity;
 	
-	
-	@Bean//means spring automatically call this method
-	public InMemoryUserDetailsManager setUserSecurity() {
+	@Bean
+	public DataSource dataSource() {
+		/*
+		 * below code we have taken from spring orm dependency...
+		 */
+		DriverManagerDataSource dataSource = new DriverManagerDataSource();
 		
-		UserDetails nazim = 
-				User
-				.withUsername("nazim") 
-				.password("{noop}nazim@123")
-				.roles("admin","user")
-				.build();
+		dataSource.setUsername("root");
+		dataSource.setPassword("root");
+		dataSource.setUrl("jdbc:mysql://localhost:3306/spring-security");
+		dataSource.setDriverClassName("com.mysql.cj.jdbc.Driver");
 		
-		UserDetails priya = 
-				User
-				.withUsername("priya") 
-				.password("{noop}priya@123")
-				.roles("admin","user")
-				.build();
-		
-		
-		return new InMemoryUserDetailsManager(nazim,priya);
-		
-		// we can add user like this 
-		
-		/*GrantedAuthority user = new SimpleGrantedAuthority("user");
-		GrantedAuthority admin = new SimpleGrantedAuthority("admin");
-		
-		List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
-		authorities.add(user);
-		authorities.add(admin);
-		
-		UserDetails details = new User("Ansari", "Ansari@123",authorities);
-		
-		InMemoryUserDetailsManager inMemoryUserDetailsManager = new InMemoryUserDetailsManager();
-		inMemoryUserDetailsManager.createUser(details);
-		
-		return inMemoryUserDetailsManager;*/
+		return dataSource;
 	}
+	
+	@Bean
+	public JdbcUserDetailsManager jdbcUserDetailsManager() {
+		
+		return new JdbcUserDetailsManager(dataSource());
+	}
+	
+//	@Bean//means spring automatically call this method
+//	public InMemoryUserDetailsManager setUserSecurity() {
+//		
+//		/*
+//		 * we have hardcoded value here
+//		 * we can take this below data from frontend as well
+//		 */
+//		UserDetails nazim = 
+//				User
+//				.withUsername("nazim") 
+//				.password("{noop}nazim@123")
+//				.roles("admin","user")
+//				.build();
+//		
+//		UserDetails priya = 
+//				User
+//				.withUsername("priya") 
+//				.password("{noop}priya@123")
+//				.roles("admin","user")
+//				.build();
+//		
+//		
+//		return new InMemoryUserDetailsManager(nazim,priya);
+//		
+//		// we can add user like this 
+//		
+//		/*GrantedAuthority user = new SimpleGrantedAuthority("user");
+//		GrantedAuthority admin = new SimpleGrantedAuthority("admin");
+//		
+//		List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
+//		authorities.add(user);
+//		authorities.add(admin);
+//		
+//		UserDetails details = new User("Ansari", "Ansari@123",authorities);
+//		
+//		InMemoryUserDetailsManager inMemoryUserDetailsManager = new InMemoryUserDetailsManager();
+//		inMemoryUserDetailsManager.createUser(details);
+//		
+//		return inMemoryUserDetailsManager;*/
+//	}
 	
 	/**
 	 * with the help of this method can enable security filter chain 
@@ -100,8 +131,8 @@ public class ApplicationSecurityConfig {
 		 * security.requestMatchers(antMatcher("/employeeData")).authenticated();
 		 */
 		httpSecurity.authorizeHttpRequests(security->{
-			security.requestMatchers(antMatcher("/employeeData")).authenticated();
-			security.requestMatchers(antMatcher("/studentData"),antMatcher("/WEB-INF/view/**"),antMatcher("/register"))
+			security.requestMatchers(antMatcher("/employeeData"),antMatcher("user")).authenticated();
+			security.requestMatchers(antMatcher("/studentData"),antMatcher("/WEB-INF/view/**"),antMatcher("/register"),antMatcher("/userRegister"))
 			.permitAll()
 			.anyRequest()
 			.authenticated();
@@ -115,6 +146,7 @@ public class ApplicationSecurityConfig {
 		 */
 		httpSecurity.formLogin();
 		httpSecurity.httpBasic();
+		httpSecurity.csrf().disable();
 		
 		//this will disable security filter chain
 		return httpSecurity.build();
