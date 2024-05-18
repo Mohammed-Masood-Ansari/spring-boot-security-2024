@@ -1,23 +1,21 @@
 package com.security.spring_boot_security_2024.config;
 
+import static org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher;
+
+import javax.sql.DataSource;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
-import org.springframework.security.provisioning.JdbcUserDetailsManager;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.NoOpPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import static org.springframework.security.web.util.matcher.AntPathRequestMatcher.*;
 
-import java.sql.DriverManager;
-
-import javax.sql.DataSource;
-
-import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
+import com.security.spring_boot_security_2024.service.UserDetailsServiceImpl;
 
 @Configuration
 /**
@@ -49,10 +47,17 @@ public class ApplicationSecurityConfig {
 		return dataSource;
 	}
 	
+//	instead will use detailsServiceImpl
+//	@Bean
+//	public JdbcUserDetailsManager jdbcUserDetailsManager() {
+//		
+//		return new JdbcUserDetailsManager(dataSource());
+//	}
+	
 	@Bean
-	public JdbcUserDetailsManager jdbcUserDetailsManager() {
+	public UserDetailsServiceImpl detailsServiceImpl() {
 		
-		return new JdbcUserDetailsManager(dataSource());
+		return new UserDetailsServiceImpl();
 	}
 	
 //	@Bean//means spring automatically call this method
@@ -171,8 +176,14 @@ public class ApplicationSecurityConfig {
 	 * this means it will not encode password
 	 * @return
 	 */
-	/*@Bean
+	@SuppressWarnings("deprecation")
+	@Bean
 	PasswordEncoder passwordEncoder() {
 		return NoOpPasswordEncoder.getInstance();
-	}*/
+	}
+	
+//	@Bean
+//	public PasswordEncoder passwordEncoder() {
+//	    return new BCryptPasswordEncoder();
+//	}
 }

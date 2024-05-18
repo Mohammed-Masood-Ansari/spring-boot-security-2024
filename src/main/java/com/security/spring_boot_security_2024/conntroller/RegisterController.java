@@ -25,8 +25,8 @@ public class RegisterController {
 	 * below line of code will help the programmer to save user data inside database;
 	 * byusing spring security...
 	 */
-	@Autowired
-	JdbcUserDetailsManager jdbcUserDetailsManager;
+//	@Autowired
+//	JdbcUserDetailsManager jdbcUserDetailsManager;
 	
 	/*
 	 * above code we can write like this as well....
@@ -62,7 +62,7 @@ public class RegisterController {
 		 * 
 		 */
 		
-		jdbcUserDetailsManager.createUser(userDetails);
+//		jdbcUserDetailsManager.createUser(userDetails);
 		
 		/*
 		 * below line will save the data for some time
